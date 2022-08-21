@@ -1,0 +1,26 @@
+.product-item {
+  margin-bottom: 1rem;
+}
+
+.product-item span.completed {
+  text-decoration: line-through;
+  font-size: 0.7rem;
+}
+.product-item span.unCompleted {
+  /* text-decoration: line-through; */
+  font-size: 2rem;
+}
+
+.product-item label {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  background-color: #f3f3f3;
+  padding: 1rem;
+}
+
+form.clear-btn {
+  margin: 3rem;
+}

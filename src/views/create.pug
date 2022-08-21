@@ -1,0 +1,15 @@
+doctype html
+html
+  include partials/head.pug
+body 
+include partials/navbar.pug
+<div class = "container">
+<form action="/create" method="POST">
+h2 Create List to buy
+<div class="input-field">
+  <input type="text" name="productName" placeholder="Product name" ></input>
+  <input type="text" name="productCount" placeholder="Count"></input>
+</div>
+button(type="submit" class="btn") Add
+</form> 
+</div>

@@ -1,0 +1,47 @@
+doctype html
+html
+  include partials/head.pug
+body 
+include partials/navbar.pug
+
+<div class = "container">
+<form action="/create" method="POST">
+h2 Create List to buy
+<div class="input-field">
+  <input type="text" name="productName" placeholder="Product name" ></input>
+  <input type="text" name="productCount" placeholder="Count"></input>
+</div>
+button(type="submit" class="btn") Add
+</form> 
+</div>
+
+<div class = "container">
+h2 Menu list
+#buyList
+  if buyList.length==0
+    h5(class="red-text") No items to buy
+  else 
+    ul
+      each val, index in buyList
+        <form action="complete" method="POST">
+          li(class="product-item") 
+            label 
+              if val.isBuyed==true
+                input(type="checkbox" checked)
+                span(class="completed")= val.productName 
+                span(class="completed")= val.productCount 
+                <input type="hidden" value=#{val._id} name="id"></input>
+                button(class="btn btn-small" type="submit") -
+              else   
+                input(type="checkbox")
+                span(class="unCompleted")= val.productName
+                span(class="unCompleted")= val.productCount
+                <input type="hidden" value=#{val._id} name="id"></input>
+                button(class="btn btn-small" type="submit") +
+        </form>
+</div> 
+
+<form class="center clear-btn" action="clear" method="GET">
+button(class="btn" type="submit") Clear
+</form>
+

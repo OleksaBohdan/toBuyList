@@ -1,0 +1,21 @@
+<nav class="blue darken-2">
+  <div class="nav-wrapper">
+    <a href="/" class="brand-logo">Menu</a>
+    <ul id="nav-mobile" class="right hide-on-med-and-down">
+
+      #{isMenu}
+      if isMenu
+        <li class="active"><a href="/">Menu List</a></li>
+      else 
+        <li><a href="/">Menu List</a></li>
+      
+      #{isCreate}
+      if isCreate
+        <li class="active"><a href="/create">Create</a></li>
+      else 
+        <li><a href="/create">Create</a></li>
+
+    </ul>
+  </div>
+</nav>
+

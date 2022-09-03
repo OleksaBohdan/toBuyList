@@ -2,6 +2,7 @@ const Koa = require('koa');
 const Router = require('koa-router');
 const path = require('path');
 const Product = require('./models/Product');
+const User = require('./models/User');
 const Pug = require('koa-pug');
 
 const app = new Koa();
@@ -16,6 +17,20 @@ const pug = new Pug({
 });
 
 const router = new Router();
+
+router.get('/registration', async (ctx, next) => {
+  await ctx.render('registration', true);
+});
+
+router.post('/registration', async (ctx, next) => {
+  const user = {
+    email: ctx.request.body.email,
+    password: ctx.request.body.password,
+  };
+
+  await User.create({ email: user.email, passwordHash: user.password });
+  ctx.body = 'login';
+});
 
 router.get('/', async (ctx) => {
   const buyList = await Product.find({});

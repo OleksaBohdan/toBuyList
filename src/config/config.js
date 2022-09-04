@@ -4,7 +4,7 @@ module.exports = {
   crypto: {
     salt: 'Leks',
     iterations: 10,
-    length: 20,
+    length: 128,
     digest: 'sha512',
   },
 };

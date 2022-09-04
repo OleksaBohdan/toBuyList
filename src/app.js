@@ -18,18 +18,47 @@ const pug = new Pug({
 
 const router = new Router();
 
-router.get('/registration', async (ctx, next) => {
+router.get('/register', async (ctx, next) => {
   await ctx.render('registration', true);
 });
 
-router.post('/registration', async (ctx, next) => {
+router.post('/register', async (ctx, next) => {
   const user = {
     email: ctx.request.body.email,
     password: ctx.request.body.password,
   };
 
-  await User.create({ email: user.email, passwordHash: user.password });
+  try {
+    const u = new User(user);
+    await u.setPassword(user.password);
+    await u.save();
+    ctx.redirect('/login');
+  } catch (err) {
+    let errMesaage = '';
+    if (err.code == 11000) {
+      errMesaage = 'This email already exist!';
+    } else if (err.errors.email.properties.type == 'required') {
+      console.log('kind', err.errors.email.properties.type);
+      errMesaage = 'E-mail cannot be empty!';
+    } else {
+      errMesaage = err.message;
+    }
+    let error = {
+      err: errMesaage,
+    };
+    pug.locals = error;
+    await ctx.render('registration', true);
+  }
+});
+
+router.get('/login', async (ctx, next) => {
   ctx.body = 'login';
+  await ctx.render('login', true);
+});
+
+router.post('/login', async (ctx, next) => {
+  ctx.body = 'login';
+  await ctx.render('login', true);
 });
 
 router.get('/', async (ctx) => {

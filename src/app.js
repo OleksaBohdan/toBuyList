@@ -4,6 +4,7 @@ const path = require('path');
 const Product = require('./models/Product');
 const User = require('./models/User');
 const Pug = require('koa-pug');
+const passport = require('./libs/passport');
 
 const app = new Koa();
 app.use(require('koa-bodyparser')());
@@ -52,14 +53,40 @@ router.post('/register', async (ctx, next) => {
 });
 
 router.get('/login', async (ctx, next) => {
-  ctx.body = 'login';
   await ctx.render('login', true);
 });
 
 router.post('/login', async (ctx, next) => {
-  ctx.body = 'login';
-  await ctx.render('login', true);
+  await passport.authenticate('local', async (err, user, info) => {
+    if (err) throw err.message;
+
+    if (!user) {
+      ctx.status = 400;
+      ctx.body = { error: info };
+      return;
+    }
+
+    ctx.body = 'ok';
+  })(ctx, next);
 });
+
+// router.post('/login', async (ctx, next) => {
+//   const email = ctx.request.body.email;
+//   const password = ctx.request.body.password;
+//   const user = await User.findOne({ email: email });
+
+//   if (!user) {
+//     console.log('User not found');
+//   }
+
+//   if (await user.checkPassword(password)) {
+//     console.log('Login succesfull');
+//   } else {
+//     console.log('Password incorrect');
+//   }
+
+//   await ctx.render('login', true);
+// });
 
 router.get('/', async (ctx) => {
   const buyList = await Product.find({});

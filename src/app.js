@@ -62,31 +62,17 @@ router.post('/login', async (ctx, next) => {
 
     if (!user) {
       ctx.status = 400;
-      ctx.body = { error: info };
+      let err = {
+        error: info,
+      };
+      pug.locals = err;
+      await ctx.render('login', true);
       return;
     }
 
     ctx.body = 'ok';
   })(ctx, next);
 });
-
-// router.post('/login', async (ctx, next) => {
-//   const email = ctx.request.body.email;
-//   const password = ctx.request.body.password;
-//   const user = await User.findOne({ email: email });
-
-//   if (!user) {
-//     console.log('User not found');
-//   }
-
-//   if (await user.checkPassword(password)) {
-//     console.log('Login succesfull');
-//   } else {
-//     console.log('Password incorrect');
-//   }
-
-//   await ctx.render('login', true);
-// });
 
 router.get('/', async (ctx) => {
   const buyList = await Product.find({});
@@ -112,7 +98,6 @@ router.get('/create', async (ctx) => {
 router.post('/create', async (ctx, next) => {
   const productName = ctx.request.body.productName;
   const productCount = ctx.request.body.productCount;
-  console.log(productName);
   if (productName != '') {
     await Product.create({ productName: productName, productCount: productCount });
   }
@@ -121,7 +106,6 @@ router.post('/create', async (ctx, next) => {
 
 router.post('/complete', async (ctx, next) => {
   const id = ctx.request.body.id;
-  console.log(id);
   const product = await Product.findById(id);
   if (product.isBuyed == true) {
     product.isBuyed = false;

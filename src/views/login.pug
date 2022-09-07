@@ -1,0 +1,20 @@
+doctype html
+html
+  include partials/head.pug
+body 
+//- include partials/navbar.pug
+<div class = "container">
+<form action="/login" method="POST">
+h1 Menulist
+h2 Login
+p(class='red lighten-4') #{error}
+<div class="input-field">
+  <input type="email" name="email" placeholder="email" required autofocus></input>
+  <input type="text" name="password" placeholder="password" required></input>
+</div>
+button(type="submit" class="btn") Sign in
+</form> 
+<form class="center clear-btn logout" action="register" method="GET">
+button(class="btn" type="submit") Register
+</form>
+</div>

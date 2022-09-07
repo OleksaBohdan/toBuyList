@@ -3,8 +3,11 @@ const Router = require('koa-router');
 const path = require('path');
 const Product = require('./models/Product');
 const User = require('./models/User');
+const Session = require('./models/Session');
 const Pug = require('koa-pug');
 const passport = require('./libs/passport');
+const uuid = require('uuid');
+const mustBeAuthenticate = require('./controllers/mustBeAuthenticate');
 
 const app = new Koa();
 app.use(require('koa-bodyparser')());
@@ -18,6 +21,25 @@ const pug = new Pug({
 });
 
 const router = new Router();
+
+router.use(async (ctx, next) => {
+  const token = ctx.cookies.get('token');
+  if (!token) {
+    return next();
+  }
+
+  const session = await Session.findOne({ token }).populate('user');
+
+  if (session === null) {
+    ctx.redirect('/login');
+    return next();
+  }
+
+  session.lastVisit = new Date();
+  await session.save();
+  ctx.user = session.user;
+  return next();
+});
 
 router.get('/register', async (ctx, next) => {
   await ctx.render('registration', true);
@@ -70,23 +92,37 @@ router.post('/login', async (ctx, next) => {
       return;
     }
 
-    ctx.body = 'ok';
+    const token = uuid.v4();
+    await Session.create({ token: token, user: user, lastVisit: new Date() });
+
+    ctx.cookies.set('token', token);
+
+    ctx.redirect('/');
   })(ctx, next);
 });
 
-router.get('/', async (ctx) => {
-  const buyList = await Product.find({});
+router.get('/', mustBeAuthenticate, async (ctx, next) => {
+  const buyList = await Product.find({ user: ctx.user });
+
   let menu = {
     title: 'Menu',
     isMenu: true,
     buyList: buyList,
+    email: ctx.user.email,
   };
 
   pug.locals = menu;
   await ctx.render('index', true);
 });
 
-router.get('/create', async (ctx) => {
+router.get('/logout', mustBeAuthenticate, async (ctx, next) => {
+  const token = ctx.cookies.get('token');
+  await Session.findOneAndDelete({ token: token });
+  ctx.cookies.set('token', null);
+  ctx.redirect('/login');
+});
+
+router.get('/create', mustBeAuthenticate, async (ctx) => {
   let create = {
     title: 'Create',
     isCreate: true,
@@ -95,16 +131,16 @@ router.get('/create', async (ctx) => {
   await ctx.render('create', true);
 });
 
-router.post('/create', async (ctx, next) => {
+router.post('/create', mustBeAuthenticate, async (ctx, next) => {
   const productName = ctx.request.body.productName;
   const productCount = ctx.request.body.productCount;
   if (productName != '') {
-    await Product.create({ productName: productName, productCount: productCount });
+    await Product.create({ productName: productName, productCount: productCount, user: ctx.user });
   }
   ctx.redirect('/');
 });
 
-router.post('/complete', async (ctx, next) => {
+router.post('/complete', mustBeAuthenticate, async (ctx, next) => {
   const id = ctx.request.body.id;
   const product = await Product.findById(id);
   if (product.isBuyed == true) {
@@ -118,8 +154,8 @@ router.post('/complete', async (ctx, next) => {
   ctx.redirect('/');
 });
 
-router.get('/clear', async (ctx, next) => {
-  await Product.deleteMany();
+router.get('/clear', mustBeAuthenticate, async (ctx, next) => {
+  await Product.deleteMany({ user: ctx.user });
   ctx.redirect('/');
 });
 

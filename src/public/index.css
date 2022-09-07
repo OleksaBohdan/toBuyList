@@ -24,3 +24,7 @@
 form.clear-btn {
   margin: 3rem;
 }
+
+.logout button {
+  background: #2c6dbc;
+}

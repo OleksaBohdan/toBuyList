@@ -89,6 +89,7 @@ router.post('/login', async (ctx, next) => {
       };
       pug.locals = err;
       await ctx.render('login', true);
+      pug.locals = {};
       return;
     }
 

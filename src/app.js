@@ -24,6 +24,9 @@ const router = new Router();
 
 router.use(async (ctx, next) => {
   const token = ctx.cookies.get('token');
+
+  console.log(token);
+
   if (!token) {
     return next();
   }
@@ -95,7 +98,6 @@ router.post('/login', async (ctx, next) => {
 
     const token = uuid.v4();
     await Session.create({ token: token, user: user, lastVisit: new Date() });
-
     ctx.cookies.set('token', token);
 
     ctx.redirect('/');
